@@ -10,6 +10,7 @@ import visnode.pdi.process.ContrastProcess;
 import visnode.pdi.process.GaussianBlurProcess;
 import visnode.pdi.process.InputProcess;
 import visnode.pdi.process.ThresholdProcess;
+import visnode.pdi.process.WeightedGrayscaleProcess;
 
 /**
  * Conversor entre cromossomos e a rede
@@ -50,7 +51,7 @@ public class ChromossomeNetworkConverter {
             }
             Class c = pgene.value();
             if (c == null) {
-                continue;
+                break;
             }
             EditNodeDecorator node = createProcess(c, last, params);
             network.add(node);
@@ -78,6 +79,12 @@ public class ChromossomeNetworkConverter {
         if (c == GaussianBlurProcess.class) {
             node.setInput("sigma", params[0].value() * 3);
             node.setInput("maskSize", (int)(params[1].value() * 4 + 1) * 2 + 1);
+        }
+        
+        if (c == WeightedGrayscaleProcess.class) {
+            node.setInput("redWeight", params[0].value());
+            node.setInput("greenWeight", params[1].value());
+            node.setInput("blueWeight", params[2].value());
         }
         
         return node;

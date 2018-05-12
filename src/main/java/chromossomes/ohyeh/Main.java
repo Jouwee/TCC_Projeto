@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.imageio.ImageIO;
 import org.paim.commons.ImageConverter;
+import visnode.application.ExceptionHandler;
 import visnode.application.InvalidOpenFileException;
 import visnode.application.NodeNetwork;
 import visnode.application.parser.NodeNetworkParser;
@@ -39,6 +40,7 @@ public class Main {
 //        write();
 //        if (true) return;
         
+        ExceptionHandler.get().setQuiet(true);
         controller.generateStartPopulation();
         runGenerations();
         
@@ -96,11 +98,11 @@ public class Main {
                 NodeNetwork network = new NodeNetworkParser().fromJson(sb.toString());
 
                 Iterator<EditNodeDecorator> iterator = network.getNodes().iterator();
-                new NetworkEvaluator().run(iterator, NetworkEvaluator.inputImage).thenAccept((imag) -> {
-                    try {
-                        ImageIO.write(ImageConverter.toBufferedImage(imag), "png", new File(dir + img));
-                    } catch(Exception e) { e.printStackTrace(); }
-                });
+//                new NetworkEvaluator().run(iterator, NetworkEvaluator.inputImage).thenAccept((imag) -> {
+//                    try {
+//                        ImageIO.write(ImageConverter.toBufferedImage(imag), "png", new File(dir + img));
+//                    } catch(Exception e) { e.printStackTrace(); }
+//                });
 
             }catch (Exception ex) {
                 throw new InvalidOpenFileException(ex);

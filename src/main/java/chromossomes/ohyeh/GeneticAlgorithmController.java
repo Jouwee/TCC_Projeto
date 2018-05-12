@@ -8,6 +8,8 @@ package chromossomes.ohyeh;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -20,7 +22,7 @@ import visnode.application.parser.NodeNetworkParser;
  */
 public class GeneticAlgorithmController {
     
-    int SIZE = 150;
+    int SIZE = 300;
     int MAX_GENS = 1000;
     
     private Population currentPopulation;
@@ -100,8 +102,12 @@ public class GeneticAlgorithmController {
             Chromossome c = chromossomes.get(i);
             NodeNetwork network = new ChromossomeNetworkConverter(true).convert(c);
             NodeNetworkParser parser = new NodeNetworkParser();
-            try (PrintWriter writer = new PrintWriter(new File("c:\\users\\pichau\\desktop\\gens\\" + gen + "_" + i + "_" + c.getResult().getAverage() + ".vnp"), "UTF-8")) {
-                writer.print(parser.toJson(network));
+            String path = "c:\\users\\pichau\\desktop\\gens\\" + gen + "\\";
+            try {
+                Files.createDirectories(Paths.get(path));
+                try (PrintWriter writer = new PrintWriter(new File(path + i + "_" + c.getResult().getAverage() + ".vnp"), "UTF-8")) {
+                    writer.print(parser.toJson(network));
+                }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -112,8 +118,10 @@ public class GeneticAlgorithmController {
             newPopulation.add(chromossome);
         }
         
-        // Kills half the population
-        for (int i = 0; i < SIZE / 2; i++) {
+        Chromossome best = newPopulation.remove(newPopulation.size() - 1);
+        
+        // Kills 80% of the population
+        for (int i = 0; i < SIZE * 0.7; i++) {
             for (int j = 0; j < newPopulation.size(); j++) {
                 if (Math.random() > 0.5) {
                     newPopulation.remove(j);
@@ -121,6 +129,9 @@ public class GeneticAlgorithmController {
                 }
             }
         }
+        // make sure the best survives
+        newPopulation.add(best);
+        
         System.out.println("after remove " + newPopulation.size());
         
         

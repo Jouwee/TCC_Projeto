@@ -45,8 +45,12 @@ public class Population {
         return chromossomes;
     }
 
-    void remove(int j) {
-        chromossomes.remove(j);
+    Chromossome remove(int j) {
+        return chromossomes.remove(j);
+    }
+
+    void prepend(Chromossome best) {
+        chromossomes.add(0, best);
     }
     
 }

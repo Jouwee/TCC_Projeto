@@ -5,10 +5,13 @@
  */
 package chromossomes.ohyeh;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.imageio.ImageIO;
 import org.paim.commons.Image;
 import org.paim.commons.ImageFactory;
@@ -23,25 +26,24 @@ import visnode.executor.ProcessNode;
  */
 public class NetworkEvaluator {
     
-    static Image inputImage;
-    static Image expeceted;
-    static {
-        try {
-            inputImage = ImageFactory.buildRGBImage(ImageIO.read(ImageComparer.class.getResource("/Test_RGB/26.bmp")));
-            expeceted = ImageFactory.buildRGBImage(ImageIO.read(ImageComparer.class.getResource("/Test_Labels/26.bmp")));
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+    private final Image inputImage;
+    private final Image expeceted;
+    private final CompositeDisposable compositeSubscription;
+
+    public NetworkEvaluator(Image inputImage, Image expeceted) {
+        this.inputImage = inputImage;
+        this.expeceted = expeceted;
+        compositeSubscription = new CompositeDisposable();
     }
-    private CompositeDisposable compositeSubscription = new CompositeDisposable();
     
-    public CompletableFuture<IndividualResult> evaluate(NodeNetwork network) {
-        CompletableFuture<IndividualResult> future = new CompletableFuture<>();
+    
+    
+    public CompletableFuture<ImageCompareResult> evaluate(NodeNetwork network) {
+        CompletableFuture<ImageCompareResult> future = new CompletableFuture<>();
         try {
-            Iterator<EditNodeDecorator> iterator = network.getNodes().iterator();
+            Iterator<EditNodeDecorator> iterator = new ArrayList<>(network.getNodes()).iterator();
             run(iterator, inputImage).thenAccept((img) -> {
-                ImageCompareResult res = new ImageComparer().compare(img, expeceted);
-                future.complete(new IndividualResult(res.getCorrectPercentage()));
+                future.complete(new ImageComparer().compare(img, expeceted));
             });
         } catch(Exception e) {
             e.printStackTrace();
@@ -61,6 +63,11 @@ public class NetworkEvaluator {
         node.process((p) -> {});
         Observable<Image> obs = node.getOutput("image");
         compositeSubscription.add(obs.subscribe((x) -> {
+            if (x == null || !(x instanceof Image)) {
+                System.out.println("Invalid output: " + x);
+                future.complete(ImageFactory.buildBinaryImage(1, 1));
+                return;
+            }
             Image img = (Image) x;
             if (iterator.hasNext()) {
                 run(iterator, img).thenAccept((img2) -> future.complete(img2));

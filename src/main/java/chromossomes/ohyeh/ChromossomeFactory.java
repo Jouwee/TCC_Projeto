@@ -16,11 +16,20 @@ import visnode.pdi.process.GaussianBlurProcess;
 import visnode.pdi.process.GrayscaleProcess;
 import visnode.pdi.process.HoltProcess;
 import visnode.pdi.process.InvertColorProcess;
+import visnode.pdi.process.KirshProcess;
+import visnode.pdi.process.LaplaceProcess;
 import visnode.pdi.process.MedianBlurProcess;
 import visnode.pdi.process.OpeningProcess;
+import visnode.pdi.process.PointInPolygonFillProcess;
+import visnode.pdi.process.PrewittProcess;
+import visnode.pdi.process.RobertsProcess;
+import visnode.pdi.process.RobinsonProcess;
 import visnode.pdi.process.SnakeProcess;
 import visnode.pdi.process.SobelProcess;
+import visnode.pdi.process.StentifordProcess;
 import visnode.pdi.process.ThresholdProcess;
+import visnode.pdi.process.WeightedGrayscaleProcess;
+import visnode.pdi.process.ZhangSuenProcess;
 
 /**
  *
@@ -30,23 +39,32 @@ public class ChromossomeFactory {
 
     public static final Class[] PROCESSES = {
         GrayscaleProcess.class,
+        WeightedGrayscaleProcess.class,
         ThresholdProcess.class,
         InvertColorProcess.class,
-//        OpeningProcess.class,
-//        ClosingProcess.class,
-//        DilationProcess.class,
-//        ErosionProcess.class,
+        OpeningProcess.class,
+        ClosingProcess.class,
+        DilationProcess.class,
+        ErosionProcess.class,
         BrightnessProcess.class,
         ContrastProcess.class,
-//        SobelProcess.class,
-//        CannyProcess.class,
-//        SnakeProcess.class,
-//        HoltProcess.class,
-//        AverageBlurProcess.class,
+        SobelProcess.class,
+        RobertsProcess.class,
+        RobinsonProcess.class,
+        PrewittProcess.class,
+        CannyProcess.class,
+        SnakeProcess.class,
+        ZhangSuenProcess.class,
+        StentifordProcess.class,
+        HoltProcess.class,
+        AverageBlurProcess.class,
         MedianBlurProcess.class,
         GaussianBlurProcess.class,
-//        null
+        PointInPolygonFillProcess.class,
+        null
     };
+    /** Maximum number of processes */
+    public static final int MAX_PROCESSES = 9;
     
     /**
      * Cria um novo cromossomo aleatório
@@ -54,7 +72,7 @@ public class ChromossomeFactory {
      * @return Chromossome
      */
     public static Chromossome random() {
-        int size = 7 * (1 + 5);
+        int size = MAX_PROCESSES * (1 + 5);
         Gene[] genes = new Gene[size];
         for (int i = 0; i < size;) {
             genes[i++] = new ProcessTypeGene(PROCESSES[(int)(Math.random() * PROCESSES.length)]);
